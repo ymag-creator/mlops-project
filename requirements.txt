@@ -14,3 +14,4 @@ notebook
 statsmodels
 category-encoders
 seaborn
+mlflow
