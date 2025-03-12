@@ -9,3 +9,8 @@ pathlib
 scikit-learn
 joblib
 black
+dvc[s3]
+notebook
+statsmodels
+category-encoders
+seaborn
