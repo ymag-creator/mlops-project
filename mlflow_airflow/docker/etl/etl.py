@@ -255,7 +255,7 @@ def process_data(
 
     # sauvegarde le df
     ensure_folder(output_dir)
-    df.to_csv(os.path.join(output_dir, "accidents.csv"))
+    df.to_csv(os.path.join(output_dir, "accidents.csv"), sep=";", index=False)
     # Déplace les fichers de raw_to_ingest dans raw_ingested
     # Parcourir tous les fichiers dans le dossier source
     for filename in os.listdir(input_dir):

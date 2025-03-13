@@ -22,19 +22,17 @@ def split_xy(data_dir=None):
     logger = logging.getLogger(__name__)
     logger.info("making final data set from raw data")
 
-    input_filepath_df = os.path.join(input_dir, "usagers-2021.csv")
+    input_filepath_df = os.path.join(input_dir, "accidents.csv")
 
     # Call the main data processing function with the provided file paths
     process_data(
         input_filepath_df,
-        input_dir,
         output_dir,
     )
 
 
 def process_data(
     input_filepath_df,
-    input_dir,
     output_dir,
 ):
     # --Importing dataset
@@ -53,7 +51,7 @@ def process_data(
         [X_train, X_test, y_train, y_test], ["X_train", "X_test", "y_train", "y_test"]
     ):
         output_filepath = os.path.join(output_dir, f"{filename}.csv")
-        file.to_csv(output_filepath, index=False)
+        file.to_csv(output_filepath, sep=";", index=False)
 
 
 if __name__ == "__main__":
