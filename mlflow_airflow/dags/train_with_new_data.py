@@ -143,6 +143,12 @@ with DAG(
                 target="/app/data/processed_trained",
                 type="bind",
             ),
+            Mount(
+                # source="/home/ubuntu/airflow/data/to_ingest",
+                source=PROJECTMLOPS_PATH + "/data/model",
+                target="/app/data/model",
+                type="bind",
+            ),
         ],
     )
 

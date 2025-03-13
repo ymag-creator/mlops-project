@@ -69,6 +69,8 @@ def process_train(
     # --Importing dataset
     print(joblib.__version__)
 
+    print(output_data_dir)
+    print(output_model_dir)
     ensure_folder(output_data_dir)
     delete_files(output_data_dir)
     ensure_folder(output_model_dir)
