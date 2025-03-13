@@ -4,8 +4,7 @@ import numpy as np
 import logging
 import os
 import sys
-from check_structure import ensure_folder
-import shutil
+from utils import ensure_folder, move_files, delete_files
 
 
 def etl(data_dir=None):
@@ -255,14 +254,10 @@ def process_data(
 
     # sauvegarde le df
     ensure_folder(output_dir)
+    delete_files(output_dir)
     df.to_csv(os.path.join(output_dir, "accidents.csv"), sep=";", index=False)
     # Déplace les fichers de raw_to_ingest dans raw_ingested
-    # Parcourir tous les fichiers dans le dossier source
-    for filename in os.listdir(input_dir):
-        src_path = os.path.join(input_dir, filename)
-        dst_path = os.path.join(output_dir, filename)
-        if os.path.isfile(src_path):  # On ne déplace que les fichiers
-            shutil.move(src_path, dst_path)
+    move_files(input_dir, output_dir)
 
 if __name__ == "__main__":
     log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -4,7 +4,7 @@ WORKDIR /app
 
 # RUN mkdir -p data/to_ingest/silver
 
-COPY ./split_xy.py ./split_xy.py
+COPY ./train.py ./train.py
 COPY ./utils.py ./utils.py
 
 COPY ./requirements.txt ./requirements.txt

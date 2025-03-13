@@ -1,0 +1,7 @@
+pandas
+logging
+numpy 
+pathlib 
+scikit-learn
+statsmodels
+category-encoders

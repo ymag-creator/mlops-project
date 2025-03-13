@@ -67,6 +67,13 @@ with DAG(
                 cd "/opt/airflow/docker/split_xy/" && docker build -t projectmlops_splitxy:latest .
                 """,
         )
+        build_docker_image_split = BashOperator(
+            task_id="build_docker_train",
+            bash_command=f"""
+                export DOCKER_HOST=tcp://host.docker.internal:2375
+                cd "/opt/airflow/docker/train/" && docker build -t projectmlops_train:latest .
+                """,
+        )
 
     etl_task = DockerOperator(
         task_id="etl",
@@ -115,6 +122,30 @@ with DAG(
         ],
     )
 
+    train_task = DockerOperator(
+        task_id="train",
+        image="projectmlops_train:latest",
+        docker_url="tcp://host.docker.internal:2375",  # Pour Windows, et la comm entre container
+        network_mode="bridge",
+        auto_remove="force",
+        command="python3 train.py",
+        mounts=[
+            Mount(
+                # source="/home/ubuntu/airflow/data/to_ingest",
+                source=PROJECTMLOPS_PATH + "/data/processed_to_train",
+                # source=os.getenv("APP_DATA_LOCALHOST_DIR") + "/to_ingest", # permet de ne pas mettre le chemin en dur
+                target="/app/data/processed_to_train",
+                type="bind",
+            ),
+            Mount(
+                # source="/home/ubuntu/airflow/data/to_ingest",
+                source=PROJECTMLOPS_PATH + "/data/processed_trained",
+                target="/app/data/processed_trained",
+                type="bind",
+            ),
+        ],
+    )
+
     # with TaskGroup("train_model") as group_train_model:
     #     my_task4 = PythonOperator(
     #         task_id="train_LinearRegression",
@@ -131,4 +162,4 @@ with DAG(
     # )
 
     fs_defaut_conn_task >> raw_sensor
-    raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task
+    raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task >> train_task

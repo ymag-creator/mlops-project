@@ -2,7 +2,7 @@
 import pandas as pd
 import logging
 from sklearn.model_selection import train_test_split
-from check_structure import ensure_folder
+from utils import ensure_folder, delete_files
 import os
 import sys
 
@@ -46,6 +46,8 @@ def process_data(
     )
 
     ensure_folder(output_dir)
+    delete_files(output_dir)
+
     # --Saving the dataframes to their respective output file paths
     for file, filename in zip(
         [X_train, X_test, y_train, y_test], ["X_train", "X_test", "y_train", "y_test"]

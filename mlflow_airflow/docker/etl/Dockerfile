@@ -5,7 +5,7 @@ WORKDIR /app
 # RUN mkdir -p data/to_ingest/silver
 
 COPY ./etl.py ./etl.py
-COPY ./check_structure.py ./check_structure.py
+COPY ./utils.py ./utils.py
 
 COPY ./requirements.txt ./requirements.txt
 
