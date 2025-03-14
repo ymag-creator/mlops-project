@@ -23,6 +23,7 @@ def mlflow_push(data_dir=None, in_container=True):
     # répertoire data à utiliser
     if len(sys.argv) > 1:
         data_dir = sys.argv[1]
+        in_container = sys.argv[2]
     elif data_dir == None:
         data_dir = "data"
 
@@ -128,7 +129,7 @@ def process_mlflow(
     print(f"R² test : {r2_test}")
 
     # récupère la dernière expérience en prod
-    if in_container == False:
+    if in_container == True:
         server_adress = "http://mlflow-server:5000"  # "http://172.25.0.100:5000"
     else:
         server_adress = "http://localhost:5000"
@@ -142,6 +143,7 @@ def process_mlflow(
 
     model_name = "Projet_MlOps-RandomForestClassifier"
     production_alias = "Production"
+    to_deploy__alias = "A_Deployer"
     mlflow.set_experiment("Projet_MlOps")
     # -- envoi à MlFlow
     run_name = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -174,7 +176,7 @@ def process_mlflow(
     if model_version:
         run = mlflow.get_run(model_version.run_id)
         current_prod_rmse_test = run.data.metrics["rmse_test"]
-        print("3 --------------------")
+        print(" Model en prod --------------------")
         print(current_prod_rmse_test)
         tag_validation = "RMSE_Validation"
         # si delta de score supérieur à 1%, monte une erreur
@@ -183,6 +185,8 @@ def process_mlflow(
             raise Exception("Alerte le modèle dévie de plsu de 1%")
         else:
             client.set_tag(run_id=activerun_id, key=tag_validation, value="Ok")
+    else:
+        print(" pas de Model en prod --------------------")
 
     # Si on est là c'est qui'il n'y a pas de version en prod ou pas d'écart significatif de rmse, passe le run en prod
     # Enregistre le run comme version du model
@@ -190,8 +194,8 @@ def process_mlflow(
         f"runs:/{activerun_id}/{artifact_path}",
         model_name,
     )
-    # Set l'alias production
-    client.set_registered_model_alias(model_name, production_alias, result.version)
+    # Set l'alias A déployer
+    client.set_registered_model_alias(model_name, to_deploy__alias, result.version)
     # Set le tag
     client.set_model_version_tag(
         model_name,
@@ -206,4 +210,4 @@ if __name__ == "__main__":
 
     # not used in this stub but often useful for finding various files
     # project_dir = Path(__file__).resolve().parents[2]
-    mlflow_push(in_container=False)
+    mlflow_push()
