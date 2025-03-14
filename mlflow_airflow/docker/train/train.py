@@ -94,7 +94,7 @@ def process_train(
     print(rf_classifier.score(X_test, y_test))
 
     # --Save the trained model to a file
-    joblib.dump(rf_classifier, os.path.join(output_model_dir, "trained_model.joblib"))
+    joblib.dump(rf_classifier, os.path.join(output_model_dir, "trained_model.pkl"))
 
     print("Model trained and saved successfully.")
 
