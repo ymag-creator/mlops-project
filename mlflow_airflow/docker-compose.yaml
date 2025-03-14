@@ -285,22 +285,19 @@ services:
         condition: service_completed_successfully
 
   mlflow:
-    image: ubuntu/mlflow:2.1.1_1.0-22.04
+    image: ghcr.io/mlflow/mlflow:v2.21.0rc0
     container_name: mlflow-server
     ports:
       - "5000:5000"
     volumes:
-      - ./mlruns:/mlflow/mlruns
-      - ./mlflow.db:/mlflow/mlflow.db
+      - ./mlflow/mlruns:/mlruns
+      - ./mlflow/mlartifacts:/mlartifacts
     environment:
       MLFLOW_TRACKING_URI: http://0.0.0.0:5000
-      MLFLOW_ARTIFACT_URI: /mlflow/mlruns
     command: >
       mlflow server
       --host 0.0.0.0
       --port 5000
-      --backend-store-uri sqlite:///mlflow.db
-      --default-artifact-root /mlflow/mlruns
-
+    
 volumes:
   postgres-db-volume:
