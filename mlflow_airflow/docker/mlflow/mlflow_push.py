@@ -30,8 +30,8 @@ def mlflow_push(data_dir=None, in_container=True):
     input_dir = os.path.join(data_dir, "processed_trained")
     model_dir = os.path.join(data_dir, "model")
 
-    # logger = logging.getLogger(__name__)
-    # logger.info("Train")
+    logger = logging.getLogger(__name__)
+    logger.info("mlflow_push")
 
     input_filepath_X_train = os.path.join(input_dir, "X_train.csv")
     input_filepath_X_test = os.path.join(input_dir, "X_test.csv")
@@ -141,7 +141,7 @@ def process_mlflow(
     mlflow.set_tracking_uri(uri=server_adress)
     print("mlflow connected")
 
-    model_name = "Projet_MlOps-RandomForestClassifier"
+    model_name = "Projet_MlOps"
     production_alias = "Production"
     to_deploy__alias = "A_Deployer"
     mlflow.set_experiment("Projet_MlOps")
@@ -160,7 +160,9 @@ def process_mlflow(
         "r2_test": r2_test,
     }
 
-    with mlflow.start_run(run_name=run_name, tags={"Stage": "AA"}) as run:
+    with mlflow.start_run(
+        run_name=run_name, tags={"Stage": "AA", "Model": "RandomForestClassifier"}
+    ) as run:
         mlflow.log_params(rf_classifier.get_params())
         mlflow.log_metrics(metrics)
         mlflow.sklearn.log_model(
@@ -202,6 +204,12 @@ def process_mlflow(
         str(result.version),
         "validation_status",
         "approved",
+    )
+    client.set_model_version_tag(
+        model_name,
+        str(result.version),
+        "Model",
+        "RandomForestClassifier",
     )
 
 if __name__ == "__main__":
