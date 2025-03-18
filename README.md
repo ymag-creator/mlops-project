@@ -95,3 +95,10 @@ Convention : All python scripts must be run from the root specifying the relativ
 ------------------------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+
+
+.env pour Windows
+AIRFLOW_UID=50000 #$(id -u)
+nAIRFLOW_GID=0
+PROJECTMLOPS_PATH="C:\Users\lordb\OneDrive\Documents\PTP\Projet MLOps\Projet_MLOps_accidents"

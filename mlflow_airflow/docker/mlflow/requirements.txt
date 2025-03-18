@@ -1,0 +1,7 @@
+logging
+numpy 
+pathlib 
+scikit-learn
+statsmodels
+mlflow
+pandas
