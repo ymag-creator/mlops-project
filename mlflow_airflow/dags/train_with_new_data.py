@@ -225,6 +225,8 @@ with DAG(
     # ---------------- dagshub ----------------
     # dagshub
 
+    # MLFlow gérer état A déployer / Déployé / Echec test
+
     task_reinit_raw_to_ingest >> fs_defaut_conn_task
     fs_defaut_conn_task >> raw_sensor
     raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task >> train_task >> mlflow_task
