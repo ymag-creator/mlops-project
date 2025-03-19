@@ -34,6 +34,20 @@ with DAG(
     catchup=False,
 ) as dag:
 
+    def ensure_folder(folder_path):
+        """ Create folder if necessary"""
+        if os.path.exists(folder_path) == False :
+            os.makedirs(folder_path, exist_ok=True)
+
+    def create_dir():
+        ensure_folder("/opt/airflow/data/raw_ingested")
+        ensure_folder("/opt/airflow/data/raw_to_ingest")
+        ensure_folder("/opt/airflow/data/processed_to_train")
+        ensure_folder("/opt/airflow/data/processed_trained")
+        ensure_folder("/opt/airflow/data/model")
+
+    task_create_dir = PythonOperator(task_id="create_dirs", python_callable=create_dir)
+
     def reinit_raw_to_ingest():
         file_to_delete = "/opt/airflow/data/raw_ingested/accidents.csv"
         if os.path.exists(file_to_delete):
@@ -44,14 +58,6 @@ with DAG(
 
         src_dir = "/opt/airflow/data/raw_ingested"
         dst_dir = "/opt/airflow/data/raw_to_ingest"
-
-        def ensure_folder(folder_path):
-            """ Create folder if necessary"""
-            if os.path.exists(folder_path) == False :
-                os.makedirs(folder_path, exist_ok=True)
-
-        ensure_folder(src_dir)
-        ensure_folder(dst_dir)
 
         for filename in os.listdir(src_dir):
             src_path = os.path.join(src_dir, filename)
@@ -101,7 +107,7 @@ with DAG(
                 export DOCKER_HOST=tcp://host.docker.internal:2375
                 cd "/opt/airflow/docker/{path_name}/" && docker build -t {name}:latest .
                 """
-                 
+
     with TaskGroup("build_docker") as group_build_docker_image:
         build_docker_image_etl = BashOperator(
             task_id="build_docker_etl",
@@ -128,7 +134,7 @@ with DAG(
         docker_url="unix:///var/run/docker.sock"
     else:
         docker_url="tcp://host.docker.internal:2375"
-        
+
     etl_task = DockerOperator(
         task_id="etl",
         image="projectmlops_etl:latest",
@@ -248,6 +254,6 @@ with DAG(
 
     # MLFlow gérer état A déployer / Déployé / Echec test
 
-    task_reinit_raw_to_ingest >> fs_defaut_conn_task
+    task_create_dir >> task_reinit_raw_to_ingest >> fs_defaut_conn_task
     fs_defaut_conn_task >> raw_sensor
     raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task >> train_task >> mlflow_task
