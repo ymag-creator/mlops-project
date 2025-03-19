@@ -43,6 +43,14 @@ with DAG(
         src_dir = "/opt/airflow/data/raw_ingested"
         dst_dir = "/opt/airflow/data/raw_to_ingest"
 
+        def ensure_folder(folder_path):
+            """ Create folder if necessary"""
+            if os.path.exists(folder_path) == False :
+                os.makedirs(folder_path, exist_ok=True)
+
+        ensure_folder(src_dir)
+        ensure_folder(dst_dir)
+
         for filename in os.listdir(src_dir):
             src_path = os.path.join(src_dir, filename)
             dst_path = os.path.join(dst_dir, filename)
@@ -230,4 +238,3 @@ with DAG(
     task_reinit_raw_to_ingest >> fs_defaut_conn_task
     fs_defaut_conn_task >> raw_sensor
     raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task >> train_task >> mlflow_task
-
