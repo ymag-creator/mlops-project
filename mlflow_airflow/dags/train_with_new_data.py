@@ -103,14 +103,14 @@ with DAG(
                 cd "/opt/airflow/docker/split_xy/" && docker build -t projectmlops_splitxy:latest .
                 """,
         )
-        build_docker_image_split = BashOperator(
+        build_docker_image_train = BashOperator(
             task_id="build_docker_train",
             bash_command=f"""
                 export DOCKER_HOST=tcp://host.docker.internal:2375
                 cd "/opt/airflow/docker/train/" && docker build -t projectmlops_train:latest .
                 """,
         )
-        build_docker_image_split = BashOperator(
+        build_docker_image_mlflow = BashOperator(
             task_id="build_docker_mlflow",
             bash_command=f"""
                 export DOCKER_HOST=tcp://host.docker.internal:2375
