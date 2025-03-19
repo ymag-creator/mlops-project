@@ -98,7 +98,8 @@ Convention : All python scripts must be run from the root specifying the relativ
 
 
 
-.env pour Windows
+.env
 AIRFLOW_UID=50000 #$(id -u)
 nAIRFLOW_GID=0
 PROJECTMLOPS_PATH="C:\Users\lordb\OneDrive\Documents\PTP\Projet MLOps\Projet_MLOps_accidents"
+HOST_OS="LINUX" opu "WINDOWS"

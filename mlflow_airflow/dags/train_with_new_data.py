@@ -12,6 +12,8 @@ from datetime import datetime
 from get_fs_defaut_conn_task import get_fs_defaut_conn_task
 import shutil
 
+HOST_OS= os.getenv("HOST_OS")
+
 # def test():
 #     # Chemin du répertoire à inspecter
 #     repertoire = "data/raw_to_ingest"
@@ -79,42 +81,50 @@ with DAG(
 
     # ---------------- build les images Docker ----------------
     PROJECTMLOPS_PATH = os.getenv("PROJECTMLOPS_PATH")
+    build_command = ""
+
+    if HOST_OS=="LINUX":
+        build_command = """
+                        export DOCKER_HOST=unix:///var/run/docker.sock
+                        cd "/opt/airflow/docker/{path_name}/" && docker build -t {name}:latest .
+                """
+    else:
+        build_command = """
+                export DOCKER_HOST=tcp://host.docker.internal:2375
+                cd "/opt/airflow/docker/{path_name}/" && docker build -t {name}:latest .
+                """
+                 
     with TaskGroup("build_docker") as group_build_docker_image:
         build_docker_image_etl = BashOperator(
             task_id="build_docker_etl",
-            bash_command=f"""
-                export DOCKER_HOST=tcp://host.docker.internal:2375
-                cd "/opt/airflow/docker/etl/" && docker build -t projectmlops_etl:latest .
-                """,
-            # cd "{PROJECTMLOPS_PATH}/mlflow_airflow/docker/etl/" && docker build -t projectmlops_etl:latest .
+            bash_command=build_command.format(path_name="etl", name="projectmlops_etl")
+                
         )
         build_docker_image_split = BashOperator(
             task_id="build_docker_split",
-            bash_command=f"""
-                export DOCKER_HOST=tcp://host.docker.internal:2375
-                cd "/opt/airflow/docker/split_xy/" && docker build -t projectmlops_splitxy:latest .
-                """,
+            bash_command=build_command.format(path_name="split_xy", name="projectmlops_splitxy")
         )
-        build_docker_image_split = BashOperator(
+        build_docker_image_train = BashOperator(
             task_id="build_docker_train",
-            bash_command=f"""
-                export DOCKER_HOST=tcp://host.docker.internal:2375
-                cd "/opt/airflow/docker/train/" && docker build -t projectmlops_train:latest .
-                """,
+            bash_command=build_command.format(path_name="train", name="projectmlops_train")
+            
         )
-        build_docker_image_split = BashOperator(
+        build_docker_image_mlflow = BashOperator(
             task_id="build_docker_mlflow",
-            bash_command=f"""
-                export DOCKER_HOST=tcp://host.docker.internal:2375
-                cd "/opt/airflow/docker/mlflow/" && docker build -t projectmlops_mlflow:latest .
-                """,
+            bash_command=build_command.format(path_name="mlflow", name="projectmlops_mlflow")
+            
         )
 
     # ---------------- ETL ----------------
+    if HOST_OS=="LINUX":
+        docker_url="unix:///var/run/docker.sock"
+    else:
+        docker_url="tcp://host.docker.internal:2375"
+        
     etl_task = DockerOperator(
         task_id="etl",
         image="projectmlops_etl:latest",
-        docker_url="tcp://host.docker.internal:2375",  # Pour Windows, et la comm entre container
+        docker_url=docker_url,
         network_mode="bridge",
         auto_remove="force",
         command="python3 etl.py",
@@ -122,6 +132,7 @@ with DAG(
             Mount(
                 # source="/home/ubuntu/airflow/data/to_ingest",
                 source=PROJECTMLOPS_PATH + "/data/raw_to_ingest",
+                #source="/Users/ymagnac/Desktop/Projets/Projet_MLOps_accidents/data/raw_to_ingest", # ajout YM
                 # source=os.getenv("APP_DATA_LOCALHOST_DIR") + "/to_ingest", # permet de ne pas mettre le chemin en dur
                 target="/app/data/raw_to_ingest",
                 type="bind",
@@ -129,6 +140,7 @@ with DAG(
             Mount(
                 # source="/home/ubuntu/airflow/data/to_ingest",
                 source=PROJECTMLOPS_PATH + "/data/raw_ingested",
+                #source="/Users/ymagnac/Desktop/Projets/Projet_MLOps_accidents/data/raw_ingested", # ajout YM
                 target="/app/data/raw_ingested",
                 type="bind",
             ),
@@ -139,7 +151,7 @@ with DAG(
     splitxy_task = DockerOperator(
         task_id="split_xy",
         image="projectmlops_splitxy:latest",
-        docker_url="tcp://host.docker.internal:2375",  # Pour Windows, et la comm entre container
+        docker_url=docker_url,
         network_mode="bridge",
         auto_remove="force",
         command="python3 split_xy.py",
@@ -147,6 +159,7 @@ with DAG(
             Mount(
                 # source="/home/ubuntu/airflow/data/to_ingest",
                 source=PROJECTMLOPS_PATH + "/data/raw_ingested",
+                #source="/Users/ymagnac/Desktop/Projets/Projet_MLOps_accidents/data/raw_ingested", # ajout YM
                 # source=os.getenv("APP_DATA_LOCALHOST_DIR") + "/to_ingest", # permet de ne pas mettre le chemin en dur
                 target="/app/data/raw_ingested",
                 type="bind",
@@ -164,7 +177,7 @@ with DAG(
     train_task = DockerOperator(
         task_id="train",
         image="projectmlops_train:latest",
-        docker_url="tcp://host.docker.internal:2375",  # Pour Windows, et la comm entre container
+        docker_url=docker_url,
         network_mode="bridge",
         auto_remove="force",
         command="python3 train.py",
@@ -199,7 +212,7 @@ with DAG(
     mlflow_task = DockerOperator(
         task_id="mlflow",
         image="projectmlops_mlflow:latest",
-        docker_url="tcp://host.docker.internal:2375",  # Pour Windows, et la comm entre container
+        docker_url=docker_url,
         network_mode="mlflow_airflow_mlflow_airflow_net",
         auto_remove="force",
         command="python3 mlflow_push.py",
