@@ -1,0 +1,113 @@
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: eval  
+# ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: eval-fastapi
+  namespace: eval
+spec:
+  storageClassName: local-path
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  claimRef:
+    namespace: eval
+    name: eval-fastapi
+  hostPath:
+    # path: "/home/davy/kub/eval/test/app"  si lancé dans VM Linux
+    path: "/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Formation MLOPS/Kubernetes/eval/test/app"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: eval-fastapi
+  namespace: eval
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-port-dep
+  namespace: eval
+spec:
+  type: NodePort
+  selector:
+    app: fastapi-dep
+  ports:
+  - protocol: TCP
+    port: 8100
+    targetPort: 8000
+    nodePort: 32700
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-dep
+  labels:
+    app: fastapi-dep
+  namespace: eval
+spec:
+  selector:
+    matchLabels:
+      app: fastapi-dep
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fastapi-dep
+    spec:
+      containers:
+        - name: fastapi
+          image: lordbelasco/k8s-dst-eval-fastapi:latest
+          command: ["uvicorn"]
+          args: ["main:app", "--host", "0.0.0.0", "--port", "8000"]
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8100
+              protocol: TCP
+          volumeMounts:
+            - name: eval-fastapi
+              mountPath: /app
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: mysql-root-password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: mysql-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: mysql-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: mysql-database
+      volumes:
+        - name: eval-fastapi
+          persistentVolumeClaim:
+            claimName: eval-fastapi

@@ -5,12 +5,14 @@ import os
 import sys
 import joblib
 import numpy as np
-from sklearn.metrics import (
-    accuracy_score,
-    root_mean_squared_error,
-    mean_absolute_error,
-    r2_score,
-)
+# from sklearn.metrics import (
+#     accuracy_score,
+#     root_mean_squared_error,
+#     mean_absolute_error,
+#     r2_score,
+# )
+from sklearn.metrics import classification_report, accuracy_score, f1_score
+
 from mlflow import MlflowClient
 import mlflow
 from datetime import datetime, timezone
@@ -107,26 +109,46 @@ def process_mlflow(
     y_test_pred = rf_classifier.predict(X_test)
 
     # Scores
-    # RMSE
-    rmse_train = root_mean_squared_error(y_train, y_train_pred)
-    print(f"RMSE train : {rmse_train}")
-    rmse_test = root_mean_squared_error(y_test, y_test_pred)
-    print(f"RMSE test : {rmse_test}")
-    # MAE
-    mae_train = mean_absolute_error(y_train, y_train_pred)
-    print(f"MAE train : {mae_train}")
-    mae_test = mean_absolute_error(y_test, y_test_pred)
-    print(f"MAE test : {mae_test}")
-    # Accuracy
+    # # RMSE
+    # rmse_train = root_mean_squared_error(y_train, y_train_pred)
+    # print(f"RMSE train : {rmse_train}")
+    # rmse_test = root_mean_squared_error(y_test, y_test_pred)
+    # print(f"RMSE test : {rmse_test}")
+    # # MAE
+    # mae_train = mean_absolute_error(y_train, y_train_pred)
+    # print(f"MAE train : {mae_train}")
+    # mae_test = mean_absolute_error(y_test, y_test_pred)
+    # print(f"MAE test : {mae_test}")
+    # # Accuracy
+    # accuracy_train = accuracy_score(y_train, y_train_pred)
+    # print(f"Accuracy train : {accuracy_train}")
+    # accuracy_test = accuracy_score(y_test, y_test_pred)
+    # print(f"Accuracy test : {accuracy_test}")
+    # # R²
+    # r2_train = r2_score(y_train, y_train_pred)
+    # print(f"R² train : {r2_train}")
+    # r2_test = r2_score(y_test, y_test_pred)
+    # print(f"R² test : {r2_test}")
+
+    # accuracy
     accuracy_train = accuracy_score(y_train, y_train_pred)
-    print(f"Accuracy train : {accuracy_train}")
+    print(f"Accuracy train: {accuracy_train}")
     accuracy_test = accuracy_score(y_test, y_test_pred)
     print(f"Accuracy test : {accuracy_test}")
-    # R²
-    r2_train = r2_score(y_train, y_train_pred)
-    print(f"R² train : {r2_train}")
-    r2_test = r2_score(y_test, y_test_pred)
-    print(f"R² test : {r2_test}")
+    # train et test score
+    f1_score_train = f1_score(y_train, y_train_pred, average="weighted")
+    print(f"F1 score train : {f1_score_train}")
+    f1_score_test = f1_score(y_test, y_test_pred, average="weighted")
+    print(f"F1 Score test : {f1_score_test}")
+    # Rapport détaillé
+    detailled_report = classification_report(y_test, y_test_pred)
+    print(f"Classification report :\n {detailled_report}")
+    # Matrice de confusion
+    ct = pd.crosstab(
+        y_test, y_test_pred,
+        rownames=["Classe réelle"],
+        colnames=["Classe prédite"],
+    )
 
     # récupère la dernière expérience en prod
     if in_container == True:
@@ -150,14 +172,12 @@ def process_mlflow(
     artifact_path = "train_for_prod"
 
     metrics = {
-        "rmse_train": rmse_train,
-        "rmse_test": rmse_test,
-        "mae_train": mae_train,
-        "mae_test": mae_test,
         "accuracy_train": accuracy_train,
-        "accuracy_test": accuracy_test,
-        "r2_train": r2_train,
-        "r2_test": r2_test,
+        "accuracy test": accuracy_test,
+        "f1_score_train": f1_score_train,
+        "f1_score_test": f1_score_test,
+        # "classification_report": detailled_report,
+        # "prédiction": ct,
     }
 
     with mlflow.start_run(
@@ -177,12 +197,12 @@ def process_mlflow(
     # vérifie avec le dernier model du repo la variation du score
     if model_version:
         run = mlflow.get_run(model_version.run_id)
-        current_prod_rmse_test = run.data.metrics["rmse_test"]
+        current_prod_f1_score_test = run.data.metrics["f1_score_test"]
         print(" Model en prod --------------------")
-        print(current_prod_rmse_test)
-        tag_validation = "RMSE_Validation"
+        print(current_prod_f1_score_test)
+        tag_validation = "F1_Validation"
         # si delta de score supérieur à 1%, monte une erreur
-        if abs((current_prod_rmse_test - rmse_test) / current_prod_rmse_test * 100) > 1:
+        if abs((current_prod_f1_score_test - f1_score_test) / current_prod_f1_score_test * 100) > 1:
             client.set_tag(run_id=activerun_id, key=tag_validation, value="Error")
             raise Exception("Alerte le modèle dévie de plsu de 1%")
         else:

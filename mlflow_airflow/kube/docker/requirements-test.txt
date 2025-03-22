@@ -1,0 +1,15 @@
+fastapi[standard]
+pandas
+logging
+numpy 
+pathlib 
+scikit-learn
+statsmodels
+mlflow
+uvicorn[standard]
+pytest
+requests
+PyJWT
+joblib
+kubernetes
+passlib

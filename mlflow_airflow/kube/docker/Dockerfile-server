@@ -1,0 +1,13 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY ./server.py ./server.py
+COPY ./server_launch.py ./server_launch.py
+COPY ./mlflow_utils.py ./mlflow_utils.py
+
+COPY ./requirements-server.txt ./requirements.txt
+
+RUN pip install -r requirements.txt
+
+CMD ["python", "server_launch.py"]

@@ -15,3 +15,9 @@ statsmodels
 category-encoders
 seaborn
 mlflow
+kubernetes
+PyJWT
+uvicorn[standard]
+fastapi[standard]
+passlib
+pytest

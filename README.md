@@ -103,3 +103,11 @@ AIRFLOW_UID=50000 #$(id -u)
 nAIRFLOW_GID=0
 PROJECTMLOPS_PATH="C:\Users\lordb\OneDrive\Documents\PTP\Projet MLOps\Projet_MLOps_accidents"
 HOST_OS="LINUX" opu "WINDOWS"
+
+
+kuberntes Dashboard
+kubectl proxy 
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=eval
+
+Airflow : http://localhost:8080/
+MlFlow : http://localhost:5000

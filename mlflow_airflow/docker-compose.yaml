@@ -76,7 +76,7 @@ x-airflow-common:
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: True
     PROJECTMLOPS_PATH: ${PROJECTMLOPS_PATH} # sous windows faire sous cmd set PROJECTMLOPS_PATH=%cd%, ou dans le .env, avant docker-compose up -d
     HOST_OS: ${HOST_OS}
-
+    KUBECONFIG: /root/.kube/config
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -85,7 +85,7 @@ x-airflow-common:
     - ../data:/opt/airflow/data # nouveau volume
     - ./docker:/opt/airflow/docker # nouveau volume
     - /var/run/docker.sock:/var/run/docker.sock
-    
+    - ./kube/.kube:/root/.kube
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
