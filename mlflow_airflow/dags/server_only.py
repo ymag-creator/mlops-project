@@ -28,9 +28,9 @@ with DAG(
     tags=["Projet MLOps"],
     default_args={
         "owner": "airflow",
-        "start_date": datetime(2025, 3, 4),  # days_ago(0, minute=1),
+        "start_date": datetime(2025, 1, 4),  # days_ago(0, minute=1),
     },
-    schedule_interval="* 1 * * *",  # "*/2 * * * *",
+    schedule_interval="* 12 * * *",  # "*/2 * * * *",
     catchup=False,
 ) as dag:
 

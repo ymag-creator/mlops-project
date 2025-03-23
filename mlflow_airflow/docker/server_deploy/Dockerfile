@@ -2,7 +2,7 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# RUN mkdir -p data/to_ingest/silver
+RUN apt-get update && apt-get install -y git && apt-get clean
 
 COPY ./server_deploy.py ./server_deploy.py
 COPY ./mlflow_utils.py ./mlflow_utils.py

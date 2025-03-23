@@ -1,3 +1,5 @@
 kubernetes
 pyyaml
 mlflow
+gitpython
+requests
