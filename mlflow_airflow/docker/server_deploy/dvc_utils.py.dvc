@@ -1,0 +1,5 @@
+outs:
+- md5: a1b2cc1bc5e7b152cdf1b1e2e04fa463
+  size: 1172
+  hash: md5
+  path: dvc_utils.py

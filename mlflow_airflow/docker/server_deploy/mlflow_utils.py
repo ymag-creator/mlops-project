@@ -80,6 +80,8 @@ def set_production_alias(
     client.delete_registered_model_alias(model_name, to_deploy_alias)
     print(f"L'alias '{to_deploy_alias}' a été supprimé")
 
+    return to_deploy_model_version.version
+
 if __name__ == "__main__":
     log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_fmt)

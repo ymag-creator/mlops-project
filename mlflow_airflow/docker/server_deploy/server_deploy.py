@@ -3,6 +3,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import time
 from mlflow_utils import set_production_alias
+from dvc_utils import dvc_push
 
 class DeployError(Exception):
     pass
@@ -119,12 +120,16 @@ def kubernetes_apply_yaml():
             raise
 
 def update_mlflow():
-    set_production_alias()
+    version = set_production_alias()
+    return version
 
-def push_to_dagshub():
-    # Envoi les données dans dagshub
-    pass
+
+def push_to_dagshub(version):
+    dvc_push("Davy", version)
+
 
 if __name__ == "__main__":
-    kubernetes_apply_yaml()
-    update_mlflow()
+    # kubernetes_apply_yaml()
+    # version = update_mlflow()
+    # push_to_dagshub(version)
+    push_to_dagshub("15")

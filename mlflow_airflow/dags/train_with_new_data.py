@@ -30,7 +30,7 @@ with DAG(
         "owner": "airflow",
         "start_date": datetime(2025, 3, 4),  # days_ago(0, minute=1),
     },
-    schedule_interval="* 1 * * *",  # "*/2 * * * *",
+    schedule_interval="* * 1 * *",  # "*/2 * * * *",
     catchup=False,
 ) as dag:
 
