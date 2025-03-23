@@ -70,7 +70,7 @@ spec:
           #     protocol: TCP
           volumeMounts:
             - name: fastapi-tests
-              mountPath: /app/data_test
+              mountPath: /app/data
           # env:
           #   - name: MYSQL_ROOT_PASSWORD
           #     valueFrom:

@@ -4,7 +4,7 @@ WORKDIR /app
 
 # RUN mkdir -p data/to_ingest/silver
 
-COPY ./testkub.py ./testkub.py
+COPY ./server_test.py ./server_test.py
 
 COPY ./requirements.txt ./requirements.txt
 

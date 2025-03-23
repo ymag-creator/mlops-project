@@ -24,7 +24,7 @@ HOST_OS = os.getenv("HOST_OS")
 #     print("Fichiers dans le répertoire :", fichiers)
 
 with DAG(
-    dag_id="kub_test",
+    dag_id="server_only",
     tags=["Projet MLOps"],
     default_args={
         "owner": "airflow",
@@ -51,9 +51,16 @@ with DAG(
 
     with TaskGroup("build_docker") as group_build_docker_image:
         build_docker_image_etl = BashOperator(
-            task_id="build_docker_kubtest",
+            task_id="build_docker_server_test",
             bash_command=build_command.format(
-                path_name="kub_test", name="projectmlops_kubtest"
+                path_name="server_test", name="projectmlops_server_test"
+            ),
+        )
+
+        build_docker_image_etl = BashOperator(
+            task_id="build_docker_server_deploy",
+            bash_command=build_command.format(
+                path_name="server_deploy", name="projectmlops_server_deploy"
             ),
         )
 
@@ -63,13 +70,36 @@ with DAG(
     else:
         docker_url = "tcp://host.docker.internal:2375"
 
-    kub_task = DockerOperator(
-        task_id="etl",
-        image="projectmlops_kubtest:latest",
+    # server_test_task = DockerOperator(
+    #     task_id="server_test",
+    #     image="projectmlops_server_test:latest",
+    #     docker_url=docker_url,
+    #     network_mode="bridge",
+    #     auto_remove="force",
+    #     command="python3 server_test.py",
+    #     mounts=[
+    #         Mount(
+    #             source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
+    #             target="/root/.kube",
+    #             type="bind",
+    #             read_only=True,
+    #         ),
+    #         Mount(
+    #             source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_test",
+    #             target="/app/data",
+    #             type="bind",
+    #             read_only=True,
+    #         ),
+    #     ],
+    # )
+
+    server_deploy_task = DockerOperator(
+        task_id="server_deploy",
+        image="projectmlops_server_deploy:latest",
         docker_url=docker_url,
-        network_mode="bridge",
+        network_mode="mlflow_airflow_mlflow_airflow_net",
         auto_remove="force",
-        command="python3 testkub.py",
+        command="python3 server_deploy.py",
         mounts=[
             Mount(
                 source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
@@ -78,12 +108,13 @@ with DAG(
                 read_only=True,
             ),
             Mount(
-                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_test",
-                target="/app/data_test",
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_server",
+                target="/app/data",
                 type="bind",
                 read_only=True,
             ),
         ],
     )
 
-    group_build_docker_image >> kub_task
+    # group_build_docker_image >> server_test_task >> server_deploy_task
+    group_build_docker_image >> server_deploy_task

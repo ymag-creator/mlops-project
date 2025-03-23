@@ -22,7 +22,7 @@ for pod in pods.items:
     print(f"{pod.metadata.namespace}/{pod.metadata.name}")
 
 # chemins
-yaml_path = "data_test/fastapi-test-job.yaml"
+yaml_path = "data/fastapi-test-job.yaml"
 namespace = "projet-mlops"
 job_name = "fastapi-tests"
 pv_name = "fastapi-tests"

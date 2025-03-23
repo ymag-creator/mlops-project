@@ -70,7 +70,7 @@ def load_model_from_mlflow(
         artifact_uri = run.info.artifact_uri
         print(f"Artifact URI: {artifact_uri}")
         if in_container:
-            dest = "data_test/model"
+            dest = "data/model"
         else:
             dest = "C:/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/model"
         # # charge le model

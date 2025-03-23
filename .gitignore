@@ -97,3 +97,5 @@ mlflow_airflow/logs/dag_processor_manager/dag_processor_manager.log.1
 mlflow_airflow/kube/docker/data_test/model/train_for_prod/model.pkl
 mlflow_airflow/kube/docker/data_test/model/scaler.pkl
 mlflow_airflow/kube/docker/data_test/results.xml
+mlflow_airflow/kube/docker/data_server/model/scaler.pkl
+mlflow_airflow/kube/docker/data_server/model/train_for_prod/model.pkl

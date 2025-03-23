@@ -7,9 +7,6 @@ scikit-learn
 statsmodels
 mlflow
 uvicorn[standard]
-pytest
-requests
 PyJWT
 joblib
-kubernetes
 passlib

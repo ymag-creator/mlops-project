@@ -134,7 +134,7 @@ def test_prediction():
         print(pred, result)
         assert pred == result
 
-    X_test = pd.read_csv("data_test/X_test.csv", sep=";")
+    X_test = pd.read_csv("data/X_test.csv", sep=";")
     data_dict = X_test.to_dict(orient="records")
     # Send a POST request to the prediction
     response = requests.post(
@@ -148,7 +148,7 @@ def test_prediction():
     # print(response.json())
     assert response.status_code == 200
     y_test_pred = response.json()["predictions"]
-    y_test = pd.read_csv("data_test/y_test.csv", sep=";")
+    y_test = pd.read_csv("data/y_test.csv", sep=";")
     y_test = np.ravel(y_test)
     # print(y_test_pred)
     f1_score_test = f1_score(y_test, y_test_pred, average="weighted")

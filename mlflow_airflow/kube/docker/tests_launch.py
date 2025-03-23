@@ -28,7 +28,7 @@ from contextlib import redirect_stdout, redirect_stderr
 
 def run_pytest_and_capture():
     print("🧪 Lancement des tests pytest...")
-    with open("data_test/pytest_output.log", "w") as f:
+    with open("data/pytest_output.log", "w") as f:
         sys.stdout = f
         sys.stderr = f
         exit_code = pytest.main(
@@ -36,7 +36,7 @@ def run_pytest_and_capture():
                 "tests.py",  # dossier des tests
                 "--capture=tee-sys",  # afficher ET écrire stdout
                 "--log-cli-level=DEBUG",  # capture logs niveau INFO+
-                "--junitxml=data_test/results.xml",  # optionnel: résultat XML
+                "--junitxml=data/results.xml",  # optionnel: résultat XML
             ]
         )
         sys.stdout = sys.__stdout__
@@ -44,7 +44,7 @@ def run_pytest_and_capture():
 
     # Afficher le contenu du fichier log après exécution
     print("\n📄 Contenu du fichier de log pytest :\n")
-    with open("data_test/pytest_output.log", "r") as f:
+    with open("data/pytest_output.log", "r") as f:
         print(f.read())
 
     # # Ouvre un fichier log pour rediriger stdout + stderr

@@ -1,22 +1,21 @@
-from fastapi import FastAPI
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
-from typing import Optional
-import jwt
-from jwt.exceptions import InvalidTokenError
-from datetime import datetime, timedelta
-import os
-from pydantic import BaseModel
 from mlflow_utils import load_model_from_mlflow
 import uvicorn
 import subprocess
 
 
+# --------------- A noter ---------------
+# run_server_sync sert pour le lancement en prod, sur le port 6200, donc bloque le thread
+# run_server_async sert popur les tests, sur le port 6100, et ne bloque pas le thread pour redonner
+#    la main à pytest qui attend que le serveur soit lancé pour lancer les tests
+#
+# il faut des ports différents pour que les tests puissent être lancés en parallèle de la prod ! 
+# Peut passer le port en param à partir de tests_launch si besoin été
+# --------------- A noter ---------------
+
 
 def run_server_sync():
     print("🚀 Démarrage du serveur Uvicorn...")
-    config = uvicorn.Config("server:app", port=6100, log_level="info", reload=True)
+    config = uvicorn.Config("server:app", port=6300, host="0.0.0.0", log_level="info", reload=True)
     server = uvicorn.Server(config)
     server.run()
 
@@ -41,3 +40,4 @@ def run_server_async():
 
 if __name__ == "__main__":
     run_server_sync()
+    # run_server_async()
