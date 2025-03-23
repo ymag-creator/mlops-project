@@ -1,4 +1,3 @@
-from mlflow_utils import load_model_from_mlflow
 import uvicorn
 import subprocess
 

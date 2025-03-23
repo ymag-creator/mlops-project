@@ -34,7 +34,7 @@ def get_registered_model(client, model_name):
         return None
 
 
-def load_model_from_mlflow(
+def set_production_alias(
     in_container=True
 ):
     print("in_container", in_container)
@@ -55,56 +55,30 @@ def load_model_from_mlflow(
 
     model_name = "Projet_MlOps"
     production_alias = "Production"
-    to_deploy__alias = "A_Deployer"
+    to_deploy_alias = "A_Deployer"
     mlflow.set_experiment("Projet_MlOps")
 
     artifact_path = "train_for_prod"
 
-    # Retrouve la dernière version en prod et l'experience correspondante
-    ENV_MODE = os.getenv("ENV_MODE")
-    alias = to_deploy__alias if ENV_MODE == "TESTS" else production_alias
-    print(f"================= Alias utilisé pour charger le model : {alias} =================")
+    # Retrouve la version à déployer
+    to_deploy_model_version = get_modelversion_by_alias(
+        client, model_name, to_deploy_alias
+    )
+    print(
+        f"L'alias '{to_deploy_alias}' pointe actuellement vers la version {to_deploy_model_version.version}"
+    )
 
-    model_version = get_modelversion_by_alias(client, model_name, alias)
-    # vérifie avec le dernier model du repo la variation du score
-    if model_version and model_version.run_id:
-        run = mlflow.get_run(model_version.run_id)
-        print(run)
-        # charge le model
-        artifact_uri = run.info.artifact_uri
-        print(f"Artifact URI: {artifact_uri}")
-        if in_container:
-            dest = "data/model"
-        else:
-            dest = "C:/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/model"
-        # # charge le model
-        # champion_version = mlflow.pyfunc.load_model(
-        #     f"models:/{model_name}@{alias}"
-        # )
-        # print(champion_version)
-        # model = mlflow.sklearn.load_model(       # Le load model charge tout le réperrtoire, long et des blocage dans le container
-        #     f"runs:/{model_version.run_id}/{artifact_path}", dst_path=dest
-        # )
+    # Passe "En production"
+    client.set_registered_model_alias(
+        model_name, production_alias, to_deploy_model_version.version
+    )
+    print(
+        f"L'alias '{production_alias}' est maintenant défini pour la version {to_deploy_model_version.version}"
+    )
 
-        local_path = client.download_artifacts(
-            model_version.run_id, "train_for_prod/model.pkl", dst_path=dest
-        )
-        model = joblib.load(local_path)
-
-        print(model)
-        # charge le scaler
-        scaler_path = download_artifacts(
-            run_id=model_version.run_id, artifact_path="scaler.pkl", dst_path=dest
-        )
-        # Charger le .pkl
-        with open(scaler_path, "rb") as f:
-            scaler = joblib.load(f)
-        print(scaler)
-        return model, scaler
-    else:
-        print("pas de Model")
-        return None, None
-
+    # Supprime l'ancien alias A_Deployer
+    client.delete_registered_model_alias(model_name, to_deploy_alias)
+    print(f"L'alias '{to_deploy_alias}' a été supprimé")
 
 if __name__ == "__main__":
     log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -112,4 +86,4 @@ if __name__ == "__main__":
 
     # not used in this stub but often useful for finding various files
     # project_dir = Path(__file__).resolve().parents[2]
-    load_model_from_mlflow(False)
+    set_production_alias(False)

@@ -5,6 +5,7 @@ WORKDIR /app
 # RUN mkdir -p data/to_ingest/silver
 
 COPY ./server_deploy.py ./server_deploy.py
+COPY ./mlflow_utils.py ./mlflow_utils.py
 
 COPY ./requirements.txt ./requirements.txt
 

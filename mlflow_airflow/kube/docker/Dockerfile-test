@@ -10,6 +10,8 @@ COPY ./mlflow_utils.py ./mlflow_utils.py
 
 COPY ./requirements-test.txt ./requirements.txt
 
+ENV ENV_MODE=TESTS
+
 RUN pip install -r requirements.txt
 
 # CMD ["python", "tests_launch.py"]

@@ -2,6 +2,7 @@ import yaml
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import time
+from mlflow_utils import set_production_alias
 
 class DeployError(Exception):
     pass
@@ -118,8 +119,7 @@ def kubernetes_apply_yaml():
             raise
 
 def update_mlflow():
-    # Marque le model en prod
-    pass 
+    set_production_alias()
 
 def push_to_dagshub():
     # Envoi les données dans dagshub
