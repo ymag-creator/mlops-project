@@ -1,0 +1,6 @@
+outs:
+- md5: 9da1a8cc4211569c7d9c91f6ac2698f7.dir
+  size: 5882307
+  nfiles: 4
+  hash: md5
+  path: processed_trained
