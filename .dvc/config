@@ -1,5 +1,8 @@
 [core]
     analytics = false
-    remote = remote_storage
+    remote = origin
 ['remote "remote_storage"']
     url = ../../dvc_remote
+['remote "origin"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/lordbelasco/Projet_MLOps_accidents.s3

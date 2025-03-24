@@ -96,7 +96,9 @@ data/raw_to_ingest
 .mypy_cache/
 *.joblib
 
-mlflow_airflow/mlflow/
+mlflow_airflow/mlflow/mlartifacts
+mlflow_airflow/mlflow/mlruns
+
 mlflow_airflow/logs/dag_processor_manager/dag_processor_manager.log.1
 mlflow_airflow/kube/docker/data_test/model/train_for_prod/model.pkl
 mlflow_airflow/kube/docker/data_test/model/scaler.pkl
