@@ -79,8 +79,7 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/model
-/data/processed_to_train
+/data
 
 # Mac OS-specific storage files
 .DS_Store

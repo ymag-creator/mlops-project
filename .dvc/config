@@ -1,6 +1,0 @@
-[core]
-    analytics = false
-    remote = origin
-['remote "origin"']
-    url = s3://dvc
-    endpointurl = https://dagshub.com/lordbelasco/Projet_MLOps_accidents.s3
