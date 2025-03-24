@@ -40,8 +40,8 @@ def dvc_push(branche, version):
     load_dotenv()
     git_token = os.getenv("GIT_TOKEN")
     dagshub_token = os.getenv("DAGSHUB_TOKEN")
-    print("git_token", git_token)
-    print("dagshub_token", dagshub_token)
+    # print("git_token", git_token)
+    # print("dagshub_token", dagshub_token)
 
     repo_path = "/app/repo_git"
     directories = ["data/processed_trained", "data/raw_ingested"]
@@ -49,7 +49,8 @@ def dvc_push(branche, version):
     tag_name = f"model-version-v{version}"  # str(random.randint(10000, 101000000))
     github_url = f"https://LordBelasco:{git_token}@github.com/LordBelasco/Projet_MLOps_accidents.git"
 
-    # --- 1. Cloner le dépôt avec authentification ---
+    print(f"{branche}, {version}")
+
     # On injecte le token dans l'URL pour éviter le prompt
     print("clone")
     subprocess.run(

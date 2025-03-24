@@ -125,7 +125,7 @@ def update_mlflow():
 
 
 def push_to_dagshub(version):
-    dvc_push("Davy", version)
+    dvc_push("Production", version)
 
 
 if __name__ == "__main__":
