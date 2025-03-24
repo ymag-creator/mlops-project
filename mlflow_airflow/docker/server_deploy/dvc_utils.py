@@ -4,6 +4,7 @@ import subprocess
 import os
 import time
 # import random
+from dotenv import load_dotenv
 
 
 def ensure_folder(folder_path):
@@ -36,12 +37,17 @@ def dvc_push(branche, version):
         dagshub_password (str): Mot de passe DagsHub ou jeton d'accès personnel.
     """
 
+    load_dotenv()
+    git_token = os.getenv("GIT_TOKEN")
+    dagshub_token = os.getenv("DAGSHUB_TOKEN")
+    print("git_token", git_token)
+    print("dagshub_token", dagshub_token)
+
     repo_path = "/app/repo_git"
     directories = ["data/processed_trained", "data/raw_ingested"]
     directories_source = ["/app/data_to_push/processed_trained", "/app/data_to_push/raw_ingested"]
     tag_name = f"model-version-v{version}"  # str(random.randint(10000, 101000000))
-    github_url = "https://LordBelasco:{token}@github.com/LordBelasco/Projet_MLOps_accidents.git"
-    # dagshub_url = "https://lordbelasco:token@dagshub.com/lordbelasco/Projet_MLOps_accidents.s3"
+    github_url = f"https://LordBelasco:{git_token}@github.com/LordBelasco/Projet_MLOps_accidents.git"
 
     # --- 1. Cloner le dépôt avec authentification ---
     # On injecte le token dans l'URL pour éviter le prompt
@@ -71,6 +77,8 @@ def dvc_push(branche, version):
             check=True,
         )
 
+        if dagshub_token == None:
+            raise ValueError("dagshub_token absent du .env")
         # Ajoute la config du repo dagshub dans dvc local, pour que le push fonctionne
         print("Config DVC local pour access_key")
         subprocess.run(
@@ -81,7 +89,7 @@ def dvc_push(branche, version):
                 "origin",
                 "--local",
                 "access_key_id",
-                "token",
+                dagshub_token,
             ],
             check=True,
         )
@@ -93,7 +101,7 @@ def dvc_push(branche, version):
                 "origin",
                 "--local",
                 "secret_access_key",
-                "token",
+                dagshub_token,
             ],
             check=True,
         )
