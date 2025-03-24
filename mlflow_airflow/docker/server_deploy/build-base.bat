@@ -1,0 +1,1 @@
+docker build -f Dockerfile-base -t server_deploy_base:latest .

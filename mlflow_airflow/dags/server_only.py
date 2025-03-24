@@ -30,7 +30,7 @@ with DAG(
         "owner": "airflow",
         "start_date": datetime(2025, 1, 4),  # days_ago(0, minute=1),
     },
-    schedule_interval="* 12 * * *",  # "*/2 * * * *",
+    schedule_interval="0 12 * * *",  # "*/2 * * * *",
     catchup=False,
 ) as dag:
 
@@ -50,20 +50,18 @@ with DAG(
                 """
 
     with TaskGroup("build_docker") as group_build_docker_image:
-        build_docker_image_etl = BashOperator(
+        build_docker_image_server_test = BashOperator(
             task_id="build_docker_server_test",
             bash_command=build_command.format(
                 path_name="server_test", name="projectmlops_server_test"
             ),
         )
-
-        build_docker_image_etl = BashOperator(
+        build_docker_image_server_deploy = BashOperator(
             task_id="build_docker_server_deploy",
             bash_command=build_command.format(
                 path_name="server_deploy", name="projectmlops_server_deploy"
             ),
         )
-
     # ---------------- Test kubernestes ----------------
     if HOST_OS == "LINUX":
         docker_url = "unix:///var/run/docker.sock"
@@ -112,8 +110,8 @@ with DAG(
                 type="bind",
             ),
             Mount(
-                source=PROJECTMLOPS_PATH,
-                target="/app/working_dir",
+                source=PROJECTMLOPS_PATH + "/data",
+                target="/app/data_to_push",
                 type="bind",
                 read_only=True,
             ),

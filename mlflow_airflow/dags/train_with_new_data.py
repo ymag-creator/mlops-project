@@ -30,7 +30,7 @@ with DAG(
         "owner": "airflow",
         "start_date": datetime(2025, 1, 4),  # days_ago(0, minute=1),
     },
-    schedule_interval="* 12 * * *",  # "*/2 * * * *",
+    schedule_interval="0 12 * * *",  # "*/2 * * * *",
     catchup=False,
 ) as dag:
 
@@ -121,12 +121,22 @@ with DAG(
         build_docker_image_train = BashOperator(
             task_id="build_docker_train",
             bash_command=build_command.format(path_name="train", name="projectmlops_train")
-            
         )
         build_docker_image_mlflow = BashOperator(
             task_id="build_docker_mlflow",
             bash_command=build_command.format(path_name="mlflow", name="projectmlops_mlflow")
-            
+        )
+        build_docker_image_server_test = BashOperator(
+            task_id="build_docker_server_test",
+            bash_command=build_command.format(
+                path_name="server_test", name="projectmlops_server_test"
+            ),
+        )
+        build_docker_image_server_deploy = BashOperator(
+            task_id="build_docker_server_deploy",
+            bash_command=build_command.format(
+                path_name="server_deploy", name="projectmlops_server_deploy"
+            ),
         )
 
     # ---------------- ETL ----------------
@@ -250,10 +260,57 @@ with DAG(
     )
 
     # ---------------- dagshub ----------------
-    # dagshub
+    server_test_task = DockerOperator(
+        task_id="server_test",
+        image="projectmlops_server_test:latest",
+        docker_url=docker_url,
+        network_mode="bridge",
+        auto_remove="force",
+        command="python3 server_test.py",
+        mounts=[
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
+                target="/root/.kube",
+                type="bind",
+                read_only=True,
+            ),
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_test",
+                target="/app/data",
+                type="bind",
+            ),
+        ],
+    )
 
-    # MLFlow gérer état A déployer / Déployé / Echec test
+    server_deploy_task = DockerOperator(
+        task_id="server_deploy",
+        image="projectmlops_server_deploy:latest",
+        docker_url=docker_url,
+        network_mode="mlflow_airflow_mlflow_airflow_net",
+        auto_remove="force",
+        command="python3 server_deploy.py",
+        mounts=[
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
+                target="/root/.kube",
+                type="bind",
+                read_only=True,
+            ),
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_server",
+                target="/app/data",
+                type="bind",
+            ),
+            Mount(
+                source=PROJECTMLOPS_PATH + "/data",
+                target="/app/data_to_push",
+                type="bind",
+                read_only=True,
+            ),
+        ],
+    )
 
     task_create_dir >> task_reinit_raw_to_ingest >> fs_defaut_conn_task
     fs_defaut_conn_task >> raw_sensor
     raw_sensor >> group_build_docker_image >> etl_task >> splitxy_task >> train_task >> mlflow_task
+    mlflow_task >> server_test_task >> server_deploy_task

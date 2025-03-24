@@ -3,3 +3,4 @@ pyyaml
 mlflow
 gitpython
 requests
+dvc[s3]
