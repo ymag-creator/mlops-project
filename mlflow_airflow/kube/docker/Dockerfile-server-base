@@ -1,0 +1,12 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY ./requirements-server.txt ./requirements.txt
+
+ENV ENV_MODE=PRODUCTION
+
+RUN pip install -r requirements.txt
+# EXPOSE 6300
+# CMD ["python", "server_launch.py"]
+# CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "6300"]

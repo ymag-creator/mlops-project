@@ -1,0 +1,11 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY ./requirements-test.txt ./requirements.txt
+
+ENV ENV_MODE=TESTS
+
+RUN pip install -r requirements.txt
+
+# CMD ["python", "tests_launch.py"]

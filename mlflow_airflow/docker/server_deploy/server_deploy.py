@@ -25,6 +25,7 @@ def kubernetes_apply_yaml():
     namespace = "projet-mlops"
 
     apps_api = client.AppsV1Api()
+    custom_api = client.CustomObjectsApi()  # Pour PodMonitor
 
     with open(yaml_path, "r") as f:
         documents = list(yaml.safe_load_all(f))
@@ -92,7 +93,7 @@ def kubernetes_apply_yaml():
                         print(f"✅ PVC '{name}' créé")
                     # if e.status == 422:
                     #     print(f"✅ PVC '{name}' existante, non modifiée car immutable")
-                        
+
                     # else:
                     #     raise
 
@@ -107,6 +108,45 @@ def kubernetes_apply_yaml():
                     if e.status == 404:
                         core_api.create_namespaced_service(namespace, resource)
                         print(f"✅ Service '{name}' créé")
+                    else:
+                        raise
+
+            # -------------- Namespace -----------------
+            elif kind == "Namespace":
+                try:
+                    core_api.read_namespace(namespace)
+                    print(f"🔄 Namespace '{namespace}' mis à jour")
+                except ApiException as e:
+                    print(e)
+                    if e.status == 404:
+                        namespace_body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
+                        core_api.create_namespace(body=namespace_body)
+                        print(f"✅ Namespace '{namespace}' créé")
+                    else:
+                        raise
+
+            # -------------- ServiceMonitor pour Prometheus -----------------
+            elif kind == "ServiceMonitor":
+                try:
+                    custom_api.get_namespaced_custom_object(
+                        group="monitoring.coreos.com",
+                        version="v1",
+                        namespace="monitoring",
+                        plural="servicemonitors",
+                        name=name,
+                    )
+                    print(f"✅ ServiceMonitor '{name}' existe déjà.")
+                except ApiException as e:
+                    if e.status == 404:
+                        print(f"🆕 Création du ServiceMonitor: {name}")
+                        custom_api.create_namespaced_custom_object(
+                            group="monitoring.coreos.com",
+                            version="v1",
+                            namespace="monitoring",
+                            plural="servicemonitors",
+                            body=resource,
+                        )
+                        print(f"✅ ServiceMonitor '{name}' créé")
                     else:
                         raise
 

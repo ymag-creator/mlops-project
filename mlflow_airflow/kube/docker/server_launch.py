@@ -1,6 +1,6 @@
 import uvicorn
 import subprocess
-
+import os
 
 # --------------- A noter ---------------
 # run_server_sync sert pour le lancement en prod, sur le port 6200, donc bloque le thread
@@ -14,6 +14,7 @@ import subprocess
 
 def run_server_sync():
     print("🚀 Démarrage du serveur Uvicorn...")
+    os.environ["ALLOW_INSTRUMENT"] = "True"
     config = uvicorn.Config("server:app", port=6300, host="0.0.0.0", log_level="info", reload=True)
     server = uvicorn.Server(config)
     server.run()

@@ -21,3 +21,4 @@ uvicorn[standard]
 fastapi[standard]
 passlib
 pytest
+prometheus-client

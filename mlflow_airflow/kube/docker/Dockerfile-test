@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM fastapi-test-base:latest
 
 WORKDIR /app
 
@@ -8,10 +8,10 @@ COPY ./tests.py ./tests.py
 COPY ./tests_launch.py ./tests_launch.py
 COPY ./mlflow_utils.py ./mlflow_utils.py
 
-COPY ./requirements-test.txt ./requirements.txt
+# COPY ./requirements-test.txt ./requirements.txt
 
 ENV ENV_MODE=TESTS
 
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
 
 # CMD ["python", "tests_launch.py"]

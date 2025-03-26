@@ -1,5 +1,4 @@
-from fastapi import FastAPI
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from typing import Optional
@@ -11,8 +10,49 @@ from pydantic import BaseModel
 from mlflow_utils import load_model_from_mlflow
 import pandas as pd
 from typing import List
+from prometheus_client import (
+    Summary,
+    Counter,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+)
+import time
 
 app = FastAPI()
+
+allow_instrument = os.environ.get("ALLOW_INSTRUMENT") 
+
+nb_of_requests_counter = None
+requests_duration_summary = None
+collector = None 
+
+if allow_instrument == "True":
+    print("Ajout Instrumentator")
+    collector = CollectorRegistry()
+
+    # comptage de requête
+    nb_of_requests_counter = Counter(
+        name="nb_of_requests",
+        documentation="nombre de requête",
+        labelnames=["method", "endpoint"],
+        registry=collector
+    )
+    # comptage d'erreur
+    nb_of_errors_counter = Counter(
+        name="nb_of_errors",
+        documentation="nombre d'erreurs",
+        labelnames=["method", "endpoint", "status"],
+        registry=collector,
+    )
+    # temps passé sur la prédiction
+    requests_duration_summary = Summary(
+        name="requests_duration",
+        documentation="Durée de requeête",
+        labelnames=["method", "endpoint"],
+        registry=collector
+    )
+
 
 def load_model():
     print("Load model")
@@ -43,7 +83,7 @@ model, scaler = load_model()
 # mysql_database = MYSQL_DATABASE  # "ZXZhbF9teXNxbF9kYg=="
 
 
-MLFLOW_URL = os.environ.get("MLFLOW_URL", "http://host.docker.internal:5000")
+# MLFLOW_URL = os.environ.get("MLFLOW_URL", "http://host.docker.internal:5000")
 
 # print(os.environ)
 
@@ -162,6 +202,25 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 #     # scaler = joblib.load("/home/bentoml/bento/src/scaler.pkl")
 #     pass
 
+# ------------------------ Middleware ---------------------------------------
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    print("Request", request.method, request.url.path)
+    # log la requête
+    if nb_of_requests_counter:
+        print("add counter")
+        nb_of_requests_counter.labels(method=request.method, endpoint=request.url.path).inc()
+    # attend la réponse
+    response = await call_next(request)
+    # Si la réponse est une erreur, on incrémente le compteur
+    if response.status_code != 200:
+        nb_of_errors_counter.labels(
+            method=request.method,
+            endpoint=request.url.path,
+            status=response.status_code,
+        ).inc()
+
+    return response
 
 # ------------------------ Rest API ---------------------------------------
 @app.get("/status")
@@ -171,6 +230,13 @@ def version():
     Cette route renvoie un message "Hello World!".
     """
     return {"Version": "1.0"}
+
+
+@app.get("/metrics")
+async def metrics():
+    if collector:
+       return Response(content=generate_latest(collector), media_type="text/plain")
+    raise HTTPException(status_code=500, detail="collector vide")
 
 
 @app.post("/token", response_model=Token)
@@ -226,7 +292,9 @@ def validate_token(current_user: str = Depends(get_current_user)):
 
 @app.post("/predict", response_model=Predictions)
 def predict(data_accident: DataAccidents, current_user: str = Depends(get_current_user)):
-# def predict(data_accident: DataAccidents):
+    # def predict(data_accident: DataAccidents):
+    start = time.time()
+
     if not model:
         raise ValueError("Model non chargé")
     if not scaler:
@@ -244,6 +312,13 @@ def predict(data_accident: DataAccidents, current_user: str = Depends(get_curren
     print("------", df.head())
     pred = model.predict(df)
     print("prédiction", pred)
+
+    stop = time.time()
+    duration = stop - start    
+    print("duration", duration)
+    if requests_duration_summary:
+        requests_duration_summary.labels(method="POST", endpoint="/predict").observe(duration)
+
     return {"predictions": pred}
 
     # request = ctx.request
