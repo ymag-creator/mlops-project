@@ -113,7 +113,9 @@ mlflow_airflow\docker\server_test\.env
 PERSISTENTVOLUME_HOSTPATH_PATH="/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_test"
 
 kuberntes Dashboard
-kubectl proxy 
+installer 
+https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+lancer le proxy : kubectl proxy 
 créer un jeton : kubectl apply -f create-kube-dashboard-longlive-token.yaml
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=eval
 
@@ -123,6 +125,10 @@ MlFlow : http://localhost:5000
 
 kube-prometheus-stack
 https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+il faut que chacun récupére le fichier de conficher de kub, qui est propre à chaque PC 
+kubectl config view --raw > .kube/config # exportation du fichier de configuration de Kubernetes afin que Helm puisse discuter avec l'API de Kubernetes
+chmod 600 .kube/config
 
 build des images 
 Optionnel, à faire par une personne pour push sur doskerhub
