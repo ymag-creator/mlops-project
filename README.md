@@ -107,6 +107,7 @@ HOST_OS="LINUX" opu "WINDOWS"
 mlflow_airflow\docker\server_deploy\.env
 GIT_TOKEN=ghp_...
 DAGSHUB_TOKEN=44a99cea...
+PERSISTENTVOLUME_HOSTPATH_PATH="/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_server"
 
 mlflow_airflow\docker\server_test\.env
 PERSISTENTVOLUME_HOSTPATH_PATH="/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_test"
