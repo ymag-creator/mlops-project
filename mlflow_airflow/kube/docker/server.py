@@ -25,6 +25,7 @@ allow_instrument = os.environ.get("ALLOW_INSTRUMENT")
 
 nb_of_requests_counter = None
 requests_duration_summary = None
+nb_of_errors_counter= None
 collector = None 
 
 if allow_instrument == "True":
@@ -213,7 +214,7 @@ async def prometheus_middleware(request: Request, call_next):
     # attend la réponse
     response = await call_next(request)
     # Si la réponse est une erreur, on incrémente le compteur
-    if response.status_code != 200:
+    if nb_of_errors_counter and response.status_code != 200:
         nb_of_errors_counter.labels(
             method=request.method,
             endpoint=request.url.path,

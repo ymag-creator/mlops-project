@@ -131,7 +131,7 @@ def test_prediction():
         print(response.json())
         assert response.status_code == 200
         pred = response.json()["predictions"][0]
-        print(pred, result)
+        # print(pred, result)
         assert pred == result
 
     X_test = pd.read_csv("data/X_test.csv", sep=";")

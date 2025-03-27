@@ -74,29 +74,25 @@ def load_model_from_mlflow(
         artifact_uri = run.info.artifact_uri
         print(f"Artifact URI: {artifact_uri}")
         if in_container:
-            dest = "data/model"
+            # dest = "data/model"
+            dest = "/tmp"
         else:
             dest = "C:/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/model"
-        # # charge le model
-        # champion_version = mlflow.pyfunc.load_model(
-        #     f"models:/{model_name}@{alias}"
-        # )
-        # print(champion_version)
-        # model = mlflow.sklearn.load_model(       # Le load model charge tout le réperrtoire, long et des blocage dans le container
-        #     f"runs:/{model_version.run_id}/{artifact_path}", dst_path=dest
-        # )
 
+        # charge le model
         local_path = client.download_artifacts(
             model_version.run_id, "train_for_prod/model.pkl", dst_path=dest
         )
+        print("local_path", local_path)
         model = joblib.load(local_path)
-
         print(model)
         # charge le scaler
         scaler_path = download_artifacts(
             run_id=model_version.run_id, artifact_path="scaler.pkl", dst_path=dest
         )
-        # Charger le .pkl
+        print("local_path", scaler_path)
+
+        # Charger les .pkl
         with open(scaler_path, "rb") as f:
             scaler = joblib.load(f)
         print(scaler)
