@@ -124,6 +124,13 @@ MlFlow : http://localhost:5000
 kube-prometheus-stack
 https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 
+build des images 
+Optionnel, à faire par une personne pour push sur doskerhub
+    mlflow_airflow\kube\docker\build_and_push_server.bat
+    mlflow_airflow\kube\docker\build_and_push_test.bat
+obligatoire 
+    mlflow_airflow\docker\server_deploy\build-base.bat
+
 import de l'alerte et dashboard json de grafana
 mlflow_airflow\kube\FastAPI Accidents-Dashboard.json
 mlflow_airflow\kube\alert pod en pannepour dashboard.json
