@@ -4,6 +4,8 @@ from kubernetes.client.rest import ApiException
 import time
 from mlflow_utils import set_production_alias
 from dvc_utils import dvc_push
+from dotenv import load_dotenv
+import os
 
 class DeployError(Exception):
     pass
@@ -27,8 +29,33 @@ def kubernetes_apply_yaml():
     apps_api = client.AppsV1Api()
     custom_api = client.CustomObjectsApi()  # Pour PodMonitor
 
+    def ensure_namespace(namespace):
+        # -------------- Namespace -----------------
+        try:
+            core_api.read_namespace(namespace)
+            print(f"🔄 Namespace '{namespace}' mis à jour")
+        except ApiException as e:
+            print(e)
+            if e.status == 404:
+                namespace_body = client.V1Namespace(
+                    metadata=client.V1ObjectMeta(name=namespace)
+                )
+                core_api.create_namespace(body=namespace_body)
+                print(f"✅ Namespace '{namespace}' créé")
+            else:
+                raise
+
+    ensure_namespace(namespace)
+
+    # yaml_path = "C:/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_server/fastapi-deployment.yaml"
+
     with open(yaml_path, "r") as f:
         documents = list(yaml.safe_load_all(f))
+
+    # met à jour le chemin du persistent volume à partir du .env
+    load_dotenv()
+    persistentvolume_hostPath_path = os.getenv("PERSISTENTVOLUME_HOSTPATH_PATH")
+    documents[0]["spec"]["hostPath"]["path"] = persistentvolume_hostPath_path
 
     # Parcours les items du yaml, car un seul yaml avec deploy, PV et PVC
     # Crée les élements manquants, sinon update, équivalent d'un apply
@@ -111,20 +138,6 @@ def kubernetes_apply_yaml():
                     else:
                         raise
 
-            # -------------- Namespace -----------------
-            elif kind == "Namespace":
-                try:
-                    core_api.read_namespace(namespace)
-                    print(f"🔄 Namespace '{namespace}' mis à jour")
-                except ApiException as e:
-                    print(e)
-                    if e.status == 404:
-                        namespace_body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
-                        core_api.create_namespace(body=namespace_body)
-                        print(f"✅ Namespace '{namespace}' créé")
-                    else:
-                        raise
-
             # -------------- ServiceMonitor pour Prometheus -----------------
             elif kind == "ServiceMonitor":
                 try:
@@ -158,6 +171,7 @@ def kubernetes_apply_yaml():
         except ApiException as e:
             print(f"❌ Erreur sur {kind} '{name}': {e.reason}")
             raise
+
 
 def update_mlflow():
     version = set_production_alias()

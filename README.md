@@ -98,16 +98,31 @@ Convention : All python scripts must be run from the root specifying the relativ
 
 
 
-.env
+mlflow_airflow\.env
 AIRFLOW_UID=50000 #$(id -u)
 nAIRFLOW_GID=0
 PROJECTMLOPS_PATH="C:\Users\lordb\OneDrive\Documents\PTP\Projet MLOps\Projet_MLOps_accidents"
 HOST_OS="LINUX" opu "WINDOWS"
 
+mlflow_airflow\docker\server_deploy\.env
+GIT_TOKEN=ghp_...
+DAGSHUB_TOKEN=44a99cea...
+
+mlflow_airflow\docker\server_test\.env
+PERSISTENTVOLUME_HOSTPATH_PATH="/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_test"
 
 kuberntes Dashboard
 kubectl proxy 
+créer un jeton : kubectl apply -f create-kube-dashboard-longlive-token.yaml
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=eval
 
 Airflow : http://localhost:8080/
 MlFlow : http://localhost:5000
+
+
+kube-prometheus-stack
+https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+import de l'alerte et dashboard json de grafana
+mlflow_airflow\kube\FastAPI Accidents-Dashboard.json
+mlflow_airflow\kube\alert pod en pannepour dashboard.json
