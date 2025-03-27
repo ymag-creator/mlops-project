@@ -19,7 +19,7 @@ spec:
     name: fastapi-tests
   hostPath:
     # path: "/home/davy/kub/eval/test/app"
-    path: "/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_test"
+    path: "replaced/by/code/server_test.py"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

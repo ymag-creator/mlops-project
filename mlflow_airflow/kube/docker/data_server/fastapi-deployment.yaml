@@ -1,7 +1,7 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: projet-mlops  
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: projet-mlops  
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -19,7 +19,7 @@ spec:
     name: fastapi-server
   hostPath:
     # path: "/home/davy/kub/server/test/app"  si lancé dans VM Linux
-    path: "/mnt/host/c/Users/lordb/OneDrive/Documents/PTP/Projet MLOps/Projet_MLOps_accidents/mlflow_airflow/kube/docker/data_server"
+    path: "replaced/by/code/server_deploy.py"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

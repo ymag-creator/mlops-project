@@ -68,27 +68,27 @@ with DAG(
     else:
         docker_url = "tcp://host.docker.internal:2375"
 
-    # server_test_task = DockerOperator(
-    #     task_id="server_test",
-    #     image="projectmlops_server_test:latest",
-    #     docker_url=docker_url,
-    #     network_mode="bridge",
-    #     auto_remove="force",
-    #     command="python3 server_test.py",
-    #     mounts=[
-    #         Mount(
-    #             source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
-    #             target="/root/.kube",
-    #             type="bind",
-    #             read_only=True,
-    #         ),
-    #         Mount(
-    #             source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_test",
-    #             target="/app/data",
-    #             type="bind",
-    #         ),
-    #     ],
-    # )
+    server_test_task = DockerOperator(
+        task_id="server_test",
+        image="projectmlops_server_test:latest",
+        docker_url=docker_url,
+        network_mode="bridge",
+        auto_remove="force",
+        command="python3 server_test.py",
+        mounts=[
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/.kube",
+                target="/root/.kube",
+                type="bind",
+                read_only=True,
+            ),
+            Mount(
+                source=PROJECTMLOPS_PATH + "/mlflow_airflow/kube/docker/data_test",
+                target="/app/data",
+                type="bind",
+            ),
+        ],
+    )
 
     server_deploy_task = DockerOperator(
         task_id="server_deploy",
@@ -118,5 +118,5 @@ with DAG(
         ],
     )
 
-    # group_build_docker_image >> server_test_task >> server_deploy_task
-    group_build_docker_image >> server_deploy_task
+    group_build_docker_image >> server_test_task >> server_deploy_task
+    # group_build_docker_image >> server_deploy_task
