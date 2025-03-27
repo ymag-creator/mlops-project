@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import os
 import time
-# import random
+import random
 from dotenv import load_dotenv
 
 
@@ -46,7 +46,7 @@ def dvc_push(branche, version):
     repo_path = "/app/repo_git"
     directories = ["data/processed_trained", "data/raw_ingested"]
     directories_source = ["/app/data_to_push/processed_trained", "/app/data_to_push/raw_ingested"]
-    tag_name = f"model-version-v{version}"  # str(random.randint(10000, 101000000))
+    tag_name = f"model-version-v{version} [{random.randint(1111111111, 9999999999)}]"  # str(random.randint(10000, 101000000)) 
     github_url = f"https://LordBelasco:{git_token}@github.com/LordBelasco/Projet_MLOps_accidents.git"
 
     print(f"{branche}, {version}")
