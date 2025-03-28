@@ -87,8 +87,19 @@ def main():
         server_process.terminate()
         server_process.wait()
 
+def list_dir():
+    from pathlib import Path
+
+    chemin = Path("/app/data")
+
+    fichiers = [f.name for f in chemin.iterdir() if f.is_file()]
+    repertoires = [d.name for d in chemin.iterdir() if d.is_dir()]
+
+    print("Fichiers:", fichiers)
+    print("Répertoires:", repertoires)
 
 if __name__ == "__main__":
+    list_dir()
     result = main()
     print("exit code", result)
     exit(result)

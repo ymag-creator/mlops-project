@@ -117,6 +117,7 @@ installer
 https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
 lancer le proxy : kubectl proxy 
 créer un jeton : kubectl apply -f create-kube-dashboard-longlive-token.yaml
+puis kubectl -n kubernetes-dashboard create token admin-user
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=eval
 
 Airflow : http://localhost:8080/
