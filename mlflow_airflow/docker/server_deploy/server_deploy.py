@@ -183,6 +183,6 @@ def push_to_dagshub(version):
 
 
 if __name__ == "__main__":
-    kubernetes_apply_yaml()
     version = update_mlflow()
+    kubernetes_apply_yaml()
     push_to_dagshub(version)
