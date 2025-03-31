@@ -84,6 +84,7 @@ data/processed_trained
 data/processed_to_train
 data/raw_ingested
 data/raw_to_ingest
+data/data_to_train
 
 # Mac OS-specific storage files
 .DS_Store
