@@ -27,7 +27,7 @@ Mentor du projet : Sebastien SIME
 
 ## Architecture du projet
 
-![SHIELD global architecture](/reports/figures/architecture_global.png)
+![SHIELD global architecture](/reports/figures/architecture_globale.png)
 <p align="center">
     <b>Figure 1.</b> Architecture gloable
 </p>
