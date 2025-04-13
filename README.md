@@ -21,7 +21,7 @@ C'est pour ces raisons que nous avons travaillé sur une architecture MLOps afin
 
 ## Equipe de développement
 
-Notre équipe est constitué de : Davy ANEST, Philippe ARTIGNY, Yves MAGNAC, Antoine BAS
+Notre équipe est constitué de : Davy ANEST, Philippe ARTIGNY, Antoine BAS, Yves MAGNAC 
 
 Mentor du projet : Sebastien SIME
 
